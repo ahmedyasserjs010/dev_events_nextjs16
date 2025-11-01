@@ -46,6 +46,38 @@ BookingSchema.pre("save", async function (next) {
   }
 });
 
+BookingSchema.pre(["findOneAndUpdate", "updateOne", "updateMany"], async function (next) {
+  const update = this.getUpdate() ?? {};
+  const nextEventId = update.eventId ?? update.$set?.eventId;
+  if (!nextEventId) {
+    return next();
+  }
+
+  try {
+    const eventExists = await Event.exists({ _id: nextEventId });
+    if (!eventExists) {
+      return next(new Error("Referenced event does not exist"));
+    }
+    next();
+  } catch (error) {
+    next(error as Error);
+  }
+});
+
+BookingSchema.pre("insertMany", async function (next, docs: IBooking[]) {
+  try {
+    for (const doc of docs) {
+      const eventExists = await Event.exists({ _id: doc.eventId });
+      if (!eventExists) {
+        return next(new Error("Referenced event does not exist"));
+      }
+    }
+    next();
+  } catch (error) {
+    next(error as Error);
+  }
+});
+
 // Create index on eventId for faster queries
 BookingSchema.index({ eventId: 1 });
 
