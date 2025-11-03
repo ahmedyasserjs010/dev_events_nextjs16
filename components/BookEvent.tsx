@@ -25,7 +25,10 @@ const BookEvent = ({ eventId, slug }: { eventId: string, slug: string;}) => {
     return (
         <div id="book-event">
             {submitted ? (
-                <p className="text-sm">Thank you for signing up!</p>
+                <div className="p-3 bg-green-900 border border-green-300 text-green-50 rounded-lg text-sm text-center ">
+                    ✅ Thank you for signing up!
+                </div>
+
             ): (
                 <form onSubmit={handleSubmit}>
                     <div>
